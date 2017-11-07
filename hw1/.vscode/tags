@@ -1,0 +1,13 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+find_boundary	../speech.py	/^def find_boundary(time, wave_data):$/;"	kind:function	line:34
+len	../speech.py	/^len = 10$/;"	kind:variable	line:33
+main	../speech.py	/^def main():$/;"	kind:function	line:48
+read_wave_data	../speech.py	/^def read_wave_data(file_path):$/;"	kind:function	line:8
+speech.py	../speech.py	1;"	kind:file	line:1
+threshold	../speech.py	/^threshold = 5000$/;"	kind:variable	line:7
+wav1	../speech.py	/^wav1 = '2.wav'$/;"	kind:variable	line:6

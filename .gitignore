@@ -1,2 +1,3 @@
 *.pdf
-./download/
+download/*
+hw1/.vscode/*

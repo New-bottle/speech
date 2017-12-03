@@ -78,14 +78,6 @@ def zero_cross_rate(waveData, frameSize, overLap):
 		curFrame = waveData[np.arange(i*step, min(i*step+frameSize, wlen-1))]
 		nxtFrame = waveData[np.arange(i*step+1, min(i*step+frameSize+1, wlen))]
 		crossRate[i] = sum(abs(np.sign(curFrame) - np.sign(nxtFrame))) / 2.0 / frameSize
-#		if i == 2:
-#			print curFrame
-#		curFrame = curFrame - np.median(curFrame) # zero-justified
-#		if i == 2:
-#			print curFrame
-#		for j in range(len(curFrame) - 1):
-#			if (int(curFrame[j]) * int(curFrame[j + 1]) <= 0):
-#				crossRate[i] += 1
 	return crossRate
 
 def main():
@@ -100,21 +92,24 @@ def main():
 	tmp2 = enframe(waveData[0][1:len(waveData[0])], frameSize, frameSize)
 	signs = (tmp1*tmp2) < 0
 	diffs = (tmp1-tmp2) > 0.02
-	zcr = sum(signs*diffs)
+	zcr = sum(signs.T*diffs.T)
 
 	#draw the wave
 	plt.subplot(311)
 	plt.plot(time, waveData[0], c = 'r')
 
-	plt.subplot(312)
 	time2 = time[np.arange(0, len(time), frameSize)]
+
+	plt.subplot(312)
 	plt.plot(time2, energy, c = "b")
+#	energy = short_time_energy(waveData[0], frameSize, overLap)
+#	plt.plot(time2, energy, c = "b")
 
 	plt.subplot(313)
-	energy = short_time_energy(waveData[0], frameSize, overLap)
-	plt.plot(time2, energy, c = "b")
+	plt.plot(time2, zcr, c = "g")
 #	zcr = zero_cross_rate(waveData[0], frameSize, overLap)
 #	plt.plot(time2, zcr, c = "g")
+
 	plt.plot()
 	plt.show()
 

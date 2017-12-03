@@ -4,13 +4,13 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-wav1 = '1.wav'
-#wav1 = 'en_4092_b.wav'
+#wav1 = '1.wav'
+wav1 = 'en_4092_b.wav'
 frameSize = 200
 overLap = 0
-zcr_threshold = 15
-ste_threshold = 15
-ste_threshold_low = 10
+zcr_threshold = 0.2
+ste_threshold = 0.2
+ste_threshold_low = 0.1
 
 def read_wave_data(file_path):
 	# open a wave file, and return a Wave_read object
@@ -25,7 +25,7 @@ def read_wave_data(file_path):
 	f.close()
 
 	#turn the wave's data to array
-	wave_data = np.fromstring(str_data, dtype = np.int16)
+	wave_data = np.fromstring(str_data, dtype = np.int8)
 
 	# for the data is stereo, and format is LRLRLR...
 	# shape the array to n*2 (-1 means fit the y cordinate)
@@ -87,7 +87,7 @@ def main():
 	#frame = enframe(waveData[0], frameSize, frameSize)
 	# calculate the short-time-energy
 	frame = enframe(waveData[0], frameSize, frameSize)
-	energy = sum(frame.T*frame.T) / 1e8
+	energy = sum(frame.T*frame.T) / 1e5
 	volume = 10 * np.log(energy)
 
 	# calculate the zero-cross-rate
@@ -116,23 +116,26 @@ def main():
 
 	#draw the wave
 	plt.subplot(411)
-	plt.plot(time, waveData[0], c = 'r')
+	plt.plot(time[0:1000], waveData[0][0:1000], c = 'r')
 
-	time2 = time[np.arange(0, len(time), frameSize)]
+	time2 = np.arange(0, len(frame))
 
 	plt.subplot(412)
-	plt.plot(time2, energy, c = "b")
-	plt.plot([0,time2[len(time2)-1]], [15, 15], c = 'r')
-	for i in range(len(points)):
-		plt.plot([float(points[i]) / len(time2), float(points[i]) / len(time2)], [0,1e2], c = 'r')
+	plt.plot(time2[0:1000], energy[0:1000], c = "b")
+	plt.plot([0,time2[1000]], [ste_threshold, ste_threshold], c = 'r')
+#	for i in range(len(points)):
+#		plt.plot([points[i], points[i]], [0,1e2], c = 'r')
 #	energy = short_time_energy(waveData[0], frameSize, overLap)
 #	plt.plot(time2, energy, c = "b")
+	plt.ylabel("Short-time-energy");
 
 	plt.subplot(413)
-	plt.plot(time2, volume, c = "b")
+	plt.plot(time2[0:1000], volume[0:1000], c = "b")
+	plt.ylabel("volume");
 
 	plt.subplot(414)
-	plt.plot(time2, zcr, c = "g")
+	plt.plot(time2[0:1000], zcr[0:1000], c = "g")
+	plt.ylabel("ZCR");
 #	zcr = zero_cross_rate(waveData[0], frameSize, overLap)
 #	plt.plot(time2, zcr, c = "g")
 

@@ -2,7 +2,7 @@
 # @Author: richman
 # @Date:   2017-10-23 17:19:05
 # @Last Modified by:   richman
-# @Last Modified time: 2017-10-23 17:41:51
+# @Last Modified time: 2017-11-09 16:30:57
 
 import argparse
 import librosa
@@ -22,9 +22,9 @@ resaudio = []
 for line in args.idxlist:
 	begin,end, classid = line.strip().split()
 	if classid == args.speechlabel:
-		scale = sr // 1000
+		scale = sr // 1
 		begin,end = int(begin) * scale, int(end) *scale
-		resaudio.append(origaudio[begin:end])
+		resaudio.extend(origaudio[begin:end])
 
 resaudio = np.array(resaudio).flatten()
 librosa.output.write_wav(args.outwav,resaudio, sr)

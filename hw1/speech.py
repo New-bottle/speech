@@ -8,9 +8,9 @@ import numpy as np
 wav1 = 'en_4092_b.wav'
 frameSize = 200
 overLap = 0
-zcr_threshold = 0.2
-ste_threshold = 0.2
-ste_threshold_low = 0.1
+zcr_threshold = 5
+ste_threshold = 5
+ste_threshold_low = 3
 
 def read_wave_data(file_path):
 	# open a wave file, and return a Wave_read object
@@ -102,13 +102,13 @@ def main():
 	last = 0
 	for i in range(len(energy)):
 		if (status == 0): # 0 : silence
-			if energy[i] > ste_threshold:
+			if energy[i] > ste_threshold or zcr[i] > zcr_threshold:
 				print last,i,"sil"
 				last = i
 				status = 1
 				points.append(i)
 		elif status == 1: # 1 : speech
-			if energy[i] < ste_threshold_low and zcr[i] > zcr_threshold:
+			if energy[i] < ste_threshold and zcr[i] < zcr_threshold:
 				print last,i,"speech"
 				last = i
 				status = 0
@@ -116,13 +116,13 @@ def main():
 
 	#draw the wave
 	plt.subplot(411)
-	plt.plot(time[0:1000], waveData[0][0:1000], c = 'r')
+	plt.plot(time[0:500], waveData[0][0:500], c = 'r')
 
 	time2 = np.arange(0, len(frame))
 
 	plt.subplot(412)
-	plt.plot(time2[0:1000], energy[0:1000], c = "b")
-	plt.plot([0,time2[1000]], [ste_threshold, ste_threshold], c = 'r')
+	plt.plot(time2[0:500], energy[0:500], c = "b")
+	plt.plot([0,time2[500]], [ste_threshold, ste_threshold], c = 'r')
 #	for i in range(len(points)):
 #		plt.plot([points[i], points[i]], [0,1e2], c = 'r')
 #	energy = short_time_energy(waveData[0], frameSize, overLap)
@@ -130,11 +130,12 @@ def main():
 	plt.ylabel("Short-time-energy");
 
 	plt.subplot(413)
-	plt.plot(time2[0:1000], volume[0:1000], c = "b")
+	plt.plot(time2[0:500], volume[0:500], c = "b")
 	plt.ylabel("volume");
 
 	plt.subplot(414)
-	plt.plot(time2[0:1000], zcr[0:1000], c = "g")
+	plt.plot(time2[0:500], zcr[0:500], c = "g")
+	plt.plot([0,time2[500]], [zcr_threshold, zcr_threshold], c = 'r')
 	plt.ylabel("ZCR");
 #	zcr = zero_cross_rate(waveData[0], frameSize, overLap)
 #	plt.plot(time2, zcr, c = "g")

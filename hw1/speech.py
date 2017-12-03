@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 wav1 = '1.wav'
-#wav1 = 'en_4092_a.wav'
+#wav1 = 'en_4092_b.wav'
 frameSize = 200
 overLap = 0
-zcr_threshold = 45
-ste_threshold = 4000
+zcr_threshold = 15
+ste_threshold = 15
+ste_threshold_low = 10
 
 def read_wave_data(file_path):
 	# open a wave file, and return a Wave_read object
@@ -18,14 +19,13 @@ def read_wave_data(file_path):
 	params = f.getparams()
 	# get the info
 	nchannels, sampwidth, framerate, nframes = params[:4]
-	print nchannels, sampwidth, framerate, nframes
 	# read and return nframes of audion, as a strign of bytes
 	str_data = f.readframes(nframes)
 	# close the stream
 	f.close()
 
 	#turn the wave's data to array
-	wave_data = np.fromstring(str_data, dtype = np.short)
+	wave_data = np.fromstring(str_data, dtype = np.int16)
 
 	# for the data is stereo, and format is LRLRLR...
 	# shape the array to n*2 (-1 means fit the y cordinate)
@@ -35,7 +35,6 @@ def read_wave_data(file_path):
 	wave_data = wave_data.T
 	# calculate the time bar
 	time = np.arange(0, nframes) * (1.0 / framerate)
-	print time
 #	wave_data[0] = wave_data[0] * 1.0 / max(abs(wave_data[0]))
 #	wave_data[1] = wave_data[1] * 1.0 / max(abs(wave_data[1]))
 	return wave_data, time
@@ -56,6 +55,9 @@ def enframe(waveData, frameSize, stepLen):
 	indices = np.tile(np.arange(0,frameSize),(frameNum,1)) + np.tile(np.arange(0, frameNum*stepLen, stepLen), (frameSize, 1)).T
 	indices = np.array(indices, dtype = np.int32)
 	frames = pad_signal[indices]
+	# To avoid DC bias, we perform mean subtractions on each frame
+	for i in range(frameNum):
+		frames[i] = frames[i] - np.median(frames[i])
 	return frames
 
 def short_time_energy(waveData, frameSize, overLap):
@@ -85,40 +87,57 @@ def main():
 	#frame = enframe(waveData[0], frameSize, frameSize)
 	# calculate the short-time-energy
 	frame = enframe(waveData[0], frameSize, frameSize)
-	energy = sum(frame.T*frame.T)
+	energy = sum(frame.T*frame.T) / 1e8
+	volume = 10 * np.log(energy)
 
 	# calculate the zero-cross-rate
 	tmp1 = enframe(waveData[0][0:len(waveData[0])-1], frameSize, frameSize)
 	tmp2 = enframe(waveData[0][1:len(waveData[0])], frameSize, frameSize)
 	signs = (tmp1*tmp2) < 0
-	diffs = (tmp1-tmp2) > 0.02
+	diffs = (tmp1-tmp2) > 0
 	zcr = sum(signs.T*diffs.T)
 
+	points = []
+	status = 0
+	last = 0
+	for i in range(len(energy)):
+		if (status == 0): # 0 : silence
+			if energy[i] > ste_threshold:
+				print last,i,"sil"
+				last = i
+				status = 1
+				points.append(i)
+		elif status == 1: # 1 : speech
+			if energy[i] < ste_threshold_low and zcr[i] > zcr_threshold:
+				print last,i,"speech"
+				last = i
+				status = 0
+				points.append(i)
+
 	#draw the wave
-	plt.subplot(311)
+	plt.subplot(411)
 	plt.plot(time, waveData[0], c = 'r')
 
 	time2 = time[np.arange(0, len(time), frameSize)]
 
-	plt.subplot(312)
+	plt.subplot(412)
 	plt.plot(time2, energy, c = "b")
+	plt.plot([0,time2[len(time2)-1]], [15, 15], c = 'r')
+	for i in range(len(points)):
+		plt.plot([float(points[i]) / len(time2), float(points[i]) / len(time2)], [0,1e2], c = 'r')
 #	energy = short_time_energy(waveData[0], frameSize, overLap)
 #	plt.plot(time2, energy, c = "b")
 
-	plt.subplot(313)
+	plt.subplot(413)
+	plt.plot(time2, volume, c = "b")
+
+	plt.subplot(414)
 	plt.plot(time2, zcr, c = "g")
 #	zcr = zero_cross_rate(waveData[0], frameSize, overLap)
 #	plt.plot(time2, zcr, c = "g")
 
 	plt.plot()
 	plt.show()
-
-	points = []
-	status = 0
-	for i in range(len(energy)):
-		if (status == 0 or status == 1):
-			if energy[i] > ste_threshold:
-				status = 2
 	return
 
 if __name__ == "__main__":

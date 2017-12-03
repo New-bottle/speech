@@ -36,7 +36,27 @@ def read_wave_data(file_path):
 	# calculate the time bar
 	time = np.arange(0, nframes) * (1.0 / framerate)
 	print time
+#	wave_data[0] = wave_data[0] * 1.0 / max(abs(wave_data[0]))
+#	wave_data[1] = wave_data[1] * 1.0 / max(abs(wave_data[1]))
 	return wave_data, time
+
+def enframe(waveData, frameSize, stepLen):
+	'''
+	waveData  : raw data
+	frameSize : length of each frame
+	stepLen   : inc between frames
+	return an array of [frameSize, ceil(len(waveData) / stepLen)]
+	'''
+	wlen = len(waveData)
+	frameNum = int(math.ceil(wlen*1.0/stepLen))
+	pad_length = int((frameNum-1)*stepLen+frameSize)
+	zeros = np.zeros((pad_length-wlen,))
+	pad_signal = np.concatenate((waveData, zeros))
+
+	indices = np.tile(np.arange(0,frameSize),(frameNum,1)) + np.tile(np.arange(0, frameNum*stepLen, stepLen), (frameSize, 1)).T
+	indices = np.array(indices, dtype = np.int32)
+	frames = pad_signal[indices]
+	return frames
 
 def short_time_energy(waveData, frameSize, overLap):
 	wlen = len(waveData)
@@ -45,7 +65,7 @@ def short_time_energy(waveData, frameSize, overLap):
 	energy = np.zeros((frameNum,1))
 	for i in range(frameNum):
 		curFrame = waveData[np.arange(i*step, min(i*step+frameSize, wlen))]
-#		curFrame = curFrame - np.median(curFrame) # zero-justified
+		curFrame = curFrame - np.median(curFrame) # zero-justified
 		energy[i] = np.sum(curFrame*curFrame)
 	return energy
 
@@ -68,37 +88,33 @@ def zero_cross_rate(waveData, frameSize, overLap):
 #				crossRate[i] += 1
 	return crossRate
 
-def find_boundary(time, wave_data):
-	bound_data = ['k'] * time.shape[0]
-	for i in range(time.shape[0] - len):
-		flag = True
-		count = 0
-		for j in range(len):
-			if abs(wave_data[0][i+j]) < threshold:
-				count = count + 1
-		if count < len / 3:
-			bound_data[i] = 'k'
-		else:
-			bound_data[i] = 'r'
-	return bound_data
-
 def main():
 	waveData, time = read_wave_data(wav1)
-	print waveData.shape
+	#frame = enframe(waveData[0], frameSize, frameSize)
+	# calculate the short-time-energy
+	frame = enframe(waveData[0], frameSize, frameSize)
+	energy = sum(frame.T*frame.T)
+
+	# calculate the zero-cross-rate
+	tmp1 = enframe(waveData[0][0:len(waveData[0])-1], frameSize, frameSize)
+	tmp2 = enframe(waveData[0][1:len(waveData[0])], frameSize, frameSize)
+	signs = (tmp1*tmp2) < 0
+	diffs = (tmp1-tmp2) > 0.02
+	zcr = sum(signs*diffs)
+
 	#draw the wave
 	plt.subplot(311)
 	plt.plot(time, waveData[0], c = 'r')
 
 	plt.subplot(312)
-	energy = short_time_energy(waveData[0], frameSize, overLap)
-#	time2 = time[0:len(energy)]
 	time2 = time[np.arange(0, len(time), frameSize)]
 	plt.plot(time2, energy, c = "b")
 
 	plt.subplot(313)
-	zcr = zero_cross_rate(waveData[0], frameSize, overLap)
-	print zcr
-	plt.plot(time2, zcr, c = "g")
+	energy = short_time_energy(waveData[0], frameSize, overLap)
+	plt.plot(time2, energy, c = "b")
+#	zcr = zero_cross_rate(waveData[0], frameSize, overLap)
+#	plt.plot(time2, zcr, c = "g")
 	plt.plot()
 	plt.show()
 

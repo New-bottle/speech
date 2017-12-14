@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #wav1 = '1.wav'
-wav1 = 'en_4092_b.wav'
+wav1 = 'en_4092_a.wav'
 frameSize = 200
 overLap = 0
-zcr_threshold = 5
-ste_threshold = 5
+zcr_threshold = 8
+ste_threshold = 8
 ste_threshold_low = 3
 
 def read_wave_data(file_path):
@@ -87,7 +87,7 @@ def main():
 	#frame = enframe(waveData[0], frameSize, frameSize)
 	# calculate the short-time-energy
 	frame = enframe(waveData[0], frameSize, frameSize)
-	energy = sum(frame.T*frame.T) / 1e5
+	energy = sum(frame.T*frame.T) / 1e4
 	volume = 10 * np.log(energy)
 
 	# calculate the zero-cross-rate
@@ -102,17 +102,21 @@ def main():
 	last = 0
 	for i in range(len(energy)):
 		if (status == 0): # 0 : silence
-			if energy[i] > ste_threshold or zcr[i] > zcr_threshold:
-				print last,i,"sil"
+			if energy[i] > ste_threshold and zcr[i] > zcr_threshold:
+				print last*25,i*25,"sil"
 				last = i
 				status = 1
 				points.append(i)
 		elif status == 1: # 1 : speech
-			if energy[i] < ste_threshold and zcr[i] < zcr_threshold:
-				print last,i,"speech"
+			if energy[i] < ste_threshold or zcr[i] < zcr_threshold:
+				print last*25,i*25,"speech"
 				last = i
 				status = 0
 				points.append(i)
+	if status == 0:
+		print last*25, i*25, "sil"
+	else:
+		print last*25, i*25, "speech"
 
 	#draw the wave
 	plt.subplot(411)

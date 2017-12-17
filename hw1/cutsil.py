@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('inwav',help="Input wave file", type=str)
 parser.add_argument('idxlist',help="Index list, specifying all the cut indexes e.g.,: 0 100 sil", type=argparse.FileType('r'))
 parser.add_argument('outwav',help="Output wave file. Will be generated. Default: %{default}s",type=str, default="cutted.wav")
-parser.add_argument('-sl','--speechlabel', type=str, help="Speechlabel, default: %(default)s",default="speech")
+parser.add_argument('-sl','--speechlabel', type=str, help="Speechlabel, default: %(default)s",default="sil")
 
 args = parser.parse_args()
 

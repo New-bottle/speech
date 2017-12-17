@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #wav1 = '1.wav'
-wav1 = 'en_4092_a.wav'
+wav1 = 'en_4092_b.wav'
 frameSize = 200
 overLap = 0
 zcr_threshold = 0.1

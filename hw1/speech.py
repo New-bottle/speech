@@ -1,4 +1,5 @@
 from Tkinter import *
+import librosa
 import wave
 import math
 import matplotlib.pyplot as plt
@@ -13,30 +14,8 @@ ste_threshold = 8
 ste_threshold_low = 3
 
 def read_wave_data(file_path):
-	# open a wave file, and return a Wave_read object
-	f = wave.open(file_path, 'rb')
-	# read the wave's format information, and return a tuple
-	params = f.getparams()
-	# get the info
-	nchannels, sampwidth, framerate, nframes = params[:4]
-	# read and return nframes of audion, as a strign of bytes
-	str_data = f.readframes(nframes)
-	# close the stream
-	f.close()
-
-	#turn the wave's data to array
-	wave_data = np.fromstring(str_data, dtype = np.int8)
-
-	# for the data is stereo, and format is LRLRLR...
-	# shape the array to n*2 (-1 means fit the y cordinate)
-	wave_data.shape = -1, 2
-
-	# transpose the data
-	wave_data = wave_data.T
-	# calculate the time bar
-	time = np.arange(0, nframes) * (1.0 / framerate)
-#	wave_data[0] = wave_data[0] * 1.0 / max(abs(wave_data[0]))
-#	wave_data[1] = wave_data[1] * 1.0 / max(abs(wave_data[1]))
+	wave_data = librosa.load(wav1, sr=None)
+	time = np.arange(0, wave_data[0].shape[0])
 	return wave_data, time
 
 def enframe(waveData, frameSize, stepLen):
@@ -84,19 +63,19 @@ def zero_cross_rate(waveData, frameSize, overLap):
 
 def main():
 	waveData, time = read_wave_data(wav1)
-	#frame = enframe(waveData[0], frameSize, frameSize)
+	waveData = waveData[0]*1.0
+	waveData = waveData / max(abs(waveData))
+#	wavefft = np.fft.rfft(waveData)
 	# calculate the short-time-energy
-	frame = enframe(waveData[0], frameSize, frameSize)
-	energy = sum(frame.T*frame.T) / 1e4
-	volume = 10 * np.log(energy)
-
+	frame = enframe(waveData, frameSize, frameSize)
+	energy = sum(frame.T*frame.T)
+#	volume = 10 * np.log(energy)
 	# calculate the zero-cross-rate
-	tmp1 = enframe(waveData[0][0:len(waveData[0])-1], frameSize, frameSize)
-	tmp2 = enframe(waveData[0][1:len(waveData[0])], frameSize, frameSize)
+	tmp1 = enframe(waveData[0:len(waveData)-1], frameSize, frameSize)
+	tmp2 = enframe(waveData[1:len(waveData)], frameSize, frameSize)
 	signs = (tmp1*tmp2) < 0
 	diffs = (tmp1-tmp2) > 0
 	zcr = sum(signs.T*diffs.T)
-
 	points = []
 	status = 0
 	last = 0
@@ -119,31 +98,28 @@ def main():
 		print last*25, i*25, "speech"
 
 	#draw the wave
-	plt.subplot(411)
-	plt.plot(time[0:500], waveData[0][0:500], c = 'r')
-
+	showLen = 100000
+	plt.subplot(311)
+	plt.plot(time[0:showLen], waveData[0:showLen], c = 'r')
 	time2 = np.arange(0, len(frame))
-
-	plt.subplot(412)
-	plt.plot(time2[0:500], energy[0:500], c = "b")
-	plt.plot([0,time2[500]], [ste_threshold, ste_threshold], c = 'r')
+	plt.subplot(312)
+	plt.plot(time2[0:showLen // frameSize], energy[0:showLen // frameSize], c = "b")
+	plt.plot([0,time2[showLen // frameSize-1]], [ste_threshold, ste_threshold], c = 'r')
 #	for i in range(len(points)):
 #		plt.plot([points[i], points[i]], [0,1e2], c = 'r')
-#	energy = short_time_energy(waveData[0], frameSize, overLap)
+#	energy = short_time_energy(waveData, frameSize, overLap)
 #	plt.plot(time2, energy, c = "b")
 	plt.ylabel("Short-time-energy");
-
-	plt.subplot(413)
-	plt.plot(time2[0:500], volume[0:500], c = "b")
-	plt.ylabel("volume");
-
-	plt.subplot(414)
-	plt.plot(time2[0:500], zcr[0:500], c = "g")
-	plt.plot([0,time2[500]], [zcr_threshold, zcr_threshold], c = 'r')
+#	plt.subplot(313)
+#	plt.plot(wavefft)
+#	plt.plot(time2[0:showLen], volume[0:showLen], c = "b")
+#	plt.ylabel("volume");
+	plt.subplot(313)
+	plt.plot(time2[0:showLen // frameSize], zcr[0:showLen // frameSize], c = "g")
+	plt.plot([0,time2[showLen // frameSize-1]], [zcr_threshold, zcr_threshold], c = 'r')
 	plt.ylabel("ZCR");
-#	zcr = zero_cross_rate(waveData[0], frameSize, overLap)
+#	zcr = zero_cross_rate(waveData, frameSize, overLap)
 #	plt.plot(time2, zcr, c = "g")
-
 	plt.plot()
 	plt.show()
 	return

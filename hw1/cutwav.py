@@ -22,7 +22,7 @@ resaudio = []
 for line in args.idxlist:
 	begin,end, classid = line.strip().split()
 	if classid == args.speechlabel:
-		scale = sr // 1
+		scale = sr // 1000
 		begin,end = int(begin) * scale, int(end) *scale
 		resaudio.extend(origaudio[begin:end])
 

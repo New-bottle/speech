@@ -4,14 +4,16 @@ function [x1,x2] = vad_cont(x)
 x = double(x);
 x = x / max(abs(x));
 
+subplot(411);
+plot(x);
 %常数设置
 FrameLen = 240;
 FrameInc = 80;
 
-amp1 = 10;
+amp1 = 1000;
 amp2 = 2;
-zcr1 = 10;
-zcr2 = 5;
+zcr1 = 1000;
+zcr2 = 2;
 
 maxsilence = 8;  % 6*10ms  = 30ms
 minlen  = 15;    % 15*10ms = 150ms
@@ -76,7 +78,7 @@ for n=1:length(zcr)
    end
 end   
 
-subplot(311)
+subplot(412)
 plot(x)
 axis([1 length(x) -1 1])
 ylabel('Speech');
@@ -85,20 +87,20 @@ for i = 1:length(x1)
     line([x2(i)*FrameInc x2(i)*FrameInc], [-1 1], 'Color', 'blue');
 end
 
-subplot(312)
+subplot(413)
 plot(amp);
 axis([1 length(amp) 0 max(amp)])
 ylabel('Energy');
 for i = 1:length(x1)
-    line([x1(i) x1(i)], [min(amp),max(amp)], 'Color', 'red');
-    line([x2(i) x2(i)], [min(amp),max(amp)], 'Color', 'blue');
+    line([x1(i)*FrameInc x1(i)*FrameInc], [min(amp),max(amp)], 'Color', 'red');
+    line([x2(i)*FrameInc x2(i)*FrameInc], [min(amp),max(amp)], 'Color', 'blue');
 end
 
-subplot(313)
+subplot(414)
 plot(zcr);
 axis([1 length(zcr) 0 max(zcr)])
 ylabel('ZCR');
 for i = 1:length(x1)
-    line([x1(i) x1(i)], [min(zcr),max(zcr)], 'Color', 'red');
-    line([x2(i) x2(i)], [min(zcr),max(zcr)], 'Color', 'blue');
+    line([x1(i)*FrameInc x1(i)*FrameInc], [min(zcr),max(zcr)], 'Color', 'red');
+    line([x2(i)*FrameInc x2(i)*FrameInc], [min(zcr),max(zcr)], 'Color', 'blue');
 end

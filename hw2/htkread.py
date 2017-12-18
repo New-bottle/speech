@@ -5,7 +5,7 @@
 # @Last Modified time: 2017-10-23 13:15:53
 import struct
 import numpy as np
-
+import sklearn.mixture.gaussian_mixture as gmm
 
 def readhtk(fname):
     # Read header
@@ -24,11 +24,21 @@ print(x.shape)
 
 openfile = open('vad.gmm','r')
 means = []
+variances = []
+
 for line in openfile:
-	if '<MEAN>' in line:
-		nextline = next(openfile)
-		mean = np.array(nextline.split()).astype(float)
-		
-		means.append(mean)
+    if '<MEAN>' in line:
+        nextline = next(openfile)
+        mean = np.array(nextline.split()).astype(float)
+        means.append(mean)
+    elif '<VARIANCE>' in line:
+        nextline = next(openfile)
+        variance = np.array(nextline.split()).astype(float)
+        variances.append(variance)
+
 means = np.array(means)
+variances = np.array(variances)
 print means.shape
+print variances.shape
+
+gmm

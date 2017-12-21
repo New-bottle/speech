@@ -1,3 +1,5 @@
 *.pdf
 download/*
 hw1/.vscode/*
+pathdef.m
+*/.idea/*

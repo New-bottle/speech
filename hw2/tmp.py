@@ -11,13 +11,13 @@ def plot_wav(wavefile):
 	plt.plot(wavefile[0][wavstart:wavstart+wavLen], c = 'r')
 
 plt.subplot(3,1,1)
-plot_wav(librosa.load('wav/en_4092_a.wav', sr = None))
+plot_wav(librosa.load('wav/en_4092_b.wav', sr = None))
 
-os.system('python cutwav.py wav/en_4092_a.wav en_4092_a.trns a_wav.wav')
-os.system('python cutsil.py wav/en_4092_a.wav en_4092_a.trns a_sil.wav')
+os.system('python cutwav.py wav/en_4092_b.wav en_4092_b.trns b_wav.wav')
+os.system('python cutsil.py wav/en_4092_b.wav en_4092_b.trns b_sil.wav')
 
-wavefilea = librosa.load('a_wav.wav', sr = None)
-wavefileb = librosa.load('a_sil.wav', sr = None)
+wavefilea = librosa.load('b_wav.wav', sr = None)
+wavefileb = librosa.load('b_sil.wav', sr = None)
 
 plt.subplot(3,1,2)
 plot_wav(wavefilea)

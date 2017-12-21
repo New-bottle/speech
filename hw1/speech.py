@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #wav1 = '1.wav'
-wav1 = 'en_4092_b.wav'
+wav1 = 'en_4092_a.wav'
 frameSize = 200
 overLap = 0
 zcr_threshold = 0.1
@@ -56,6 +56,8 @@ def main():
 	points = []
 	status = 0
 	last = 0
+	ste_threshold = np.average(energy)
+	zcr_threshold = np.average(zcr)
 	for i in range(len(energy)):
 		if (status == 0): # 0 : silence
 			if energy[i] > ste_threshold and zcr[i] > zcr_threshold:
@@ -81,11 +83,11 @@ def main():
 	plt.subplot(312)
 	plt.plot(energy[0:showLen // frameSize], c = "b")
 	plt.plot([0,showLen // frameSize-1], [ste_threshold, ste_threshold], c = 'r')
-	plt.ylabel("Short-time-energy");
+	plt.ylabel("Short Time Energy");
 	plt.subplot(313)
 	plt.plot(zcr[0:showLen // frameSize], c = "g")
 	plt.plot([0,showLen // frameSize-1], [zcr_threshold, zcr_threshold], c = 'r')
-	plt.ylabel("ZCR");
+	plt.ylabel("Zero Cross Rate");
 	plt.plot()
 	plt.show()
 	return

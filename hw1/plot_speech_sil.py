@@ -9,6 +9,7 @@ wavLen = 100000
 def plot_wav(wavefile):
 #	wavLen = wavefile[0].shape[0]
 	plt.plot(wavefile[0][wavstart:wavstart+wavLen], c = 'r')
+	plt.ylim([-0.5,0.5])
 
 plt.subplot(3,1,1)
 plot_wav(librosa.load('en_4092_a.wav', sr = None))

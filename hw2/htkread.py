@@ -5,6 +5,7 @@
 # @Last Modified time: 2017-10-23 13:15:53
 import struct
 import numpy as np
+import sys
 from sklearn import mixture
 
 def readhtk(fname):
@@ -19,7 +20,7 @@ def readhtk(fname):
         return np.array(data).reshape(nSamples, sampSize // 4)
 
 
-x = readhtk("./wav/chen_0004092_A.mfcc")
+x = readhtk("./wav/chen_0004092_B.mfcc")
 
 openfile = open('vad.gmm','r')
 means = []
@@ -63,16 +64,15 @@ def gaussian(x, mu, sigma):
     """
     multi-dimentional guassian distribution
     """
-    norm_factor = 1.0 / np.linalg.det(sigma)
-    return norm_factor * np.exp(-0.5*np.transpose(x-mu).dot(np.linalg.inv(sigma).dot(x-mu)))
+    ans = 0.0
+    for i in range(39):
+        ans = ans + np.exp(-0.5*(x[i]-mu[i])*(x[i]-mu[i])/sigma[i])
+    return ans
 
 class GaussianMixture():
     def __init__(self, __means, __variances, __weights):
         self.__means = np.array(__means)
-        self.__variances = np.zeros((__variances.shape[0], __variances.shape[1], __variances.shape[1]))
-        for i in range(__variances.shape[0]):
-            for j in range(__variances.shape[1]):
-                self.__variances[i][j][j] = __variances[i][j]
+        self.__variances = np.array(__variances)
         self.__weights = np.array(__weights)
     def __str__(self):
         return "means = %s\nvariances = %s\nweights = %s" % (self.__means,self.__variances, self.__weights)
@@ -81,6 +81,9 @@ class GaussianMixture():
         for j in range(x.shape[0]):
             for i in range(128):
                 ans[j] = ans[j] + self.__weights[i] * gaussian(x[j], self.__means[i], self.__variances[i])
+            if j % (x.shape[0] / 10) == 0:
+                print >>sys.stderr, "%s %%" % (j / (x.shape[0] / 10)*10)
+
         return ans
 
 

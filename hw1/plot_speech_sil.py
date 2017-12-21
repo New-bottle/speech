@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 wavstart = 0
-wavLen = 1000000
+wavLen = 100000
 
 def plot_wav(wavefile):
 #	wavLen = wavefile[0].shape[0]
@@ -12,12 +12,13 @@ def plot_wav(wavefile):
 
 plt.subplot(3,1,1)
 plot_wav(librosa.load('en_4092_a.wav', sr = None))
+plt.ylabel('raw wav')
 
-os.system('python cutwav.py en_4092_b.wav en_4092_b.trns b_wav.wav')
-os.system('python cutsil.py en_4092_b.wav en_4092_b.trns b_sil.wav')
+os.system('python cutwav.py en_4092_a.wav en_4092_a.trns a_wav.wav')
+os.system('python cutsil.py en_4092_a.wav en_4092_a.trns a_sil.wav')
 
-wavefilea = librosa.load('b_wav.wav', sr = None)
-wavefileb = librosa.load('b_sil.wav', sr = None)
+wavefilea = librosa.load('a_wav.wav', sr = None)
+wavefileb = librosa.load('a_sil.wav', sr = None)
 
 plt.subplot(3,1,2)
 plot_wav(wavefilea)

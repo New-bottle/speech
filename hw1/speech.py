@@ -9,8 +9,8 @@ import numpy as np
 wav1 = 'en_4092_a.wav'
 frameSize = 200
 overLap = 0
-zcr_threshold = 0.1
-ste_threshold = 0.1
+zcr_threshold = 0.01
+ste_threshold = 0.01
 #ste_threshold_low = 1
 
 def read_wave_data(file_path):
@@ -56,8 +56,8 @@ def main():
 	points = []
 	status = 0
 	last = 0
-	ste_threshold = np.average(energy)
-	zcr_threshold = np.average(zcr)
+#	ste_threshold = np.average(energy)
+#	zcr_threshold = np.average(zcr)
 	for i in range(len(energy)):
 		if (status == 0): # 0 : silence
 			if energy[i] > ste_threshold and zcr[i] > zcr_threshold:

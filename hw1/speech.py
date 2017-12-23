@@ -80,14 +80,15 @@ def main():
 	showLen = 100000
 	plt.subplot(311)
 	plt.plot(waveData[0:showLen], c = 'r')
+	plt.ylabel("Raw wave")
 	plt.subplot(312)
 	plt.plot(energy[0:showLen // frameSize], c = "b")
 	plt.plot([0,showLen // frameSize-1], [ste_threshold, ste_threshold], c = 'r')
-	plt.ylabel("Short Time Energy");
+	plt.ylabel("Short Time Energy")
 	plt.subplot(313)
 	plt.plot(zcr[0:showLen // frameSize], c = "g")
 	plt.plot([0,showLen // frameSize-1], [zcr_threshold, zcr_threshold], c = 'r')
-	plt.ylabel("Zero Cross Rate");
+	plt.ylabel("Zero Cross Rate")
 	plt.plot()
 	plt.show()
 	return

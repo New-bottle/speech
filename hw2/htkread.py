@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Author: richman
-# @Date:   2017-10-23 13:13:42
-# @Last Modified by:   richman
-# @Last Modified time: 2017-10-23 13:15:53
 import struct
 import numpy as np
 import sys
@@ -20,7 +15,7 @@ def readhtk(fname):
         return np.array(data).reshape(nSamples, sampSize // 4)
 
 
-x = readhtk("./wav/chen_0004092_B.mfcc")
+x = readhtk("./wav/chen_0004092_A.mfcc")
 
 openfile = open('vad.gmm','r')
 means = []
@@ -104,16 +99,18 @@ n = x.shape[0]
 last = 0
 status = 0
 for i in range(n):
-    if i*10 < last:
-        continue
     if status == 0:
         if prob_speech[i] > prob_sil[i] and prob_speech[i] > prob_noise[i]:
-            print last, i*10 + 25, "sil"
-            last = i*10 + 25
+            print last, i*10, "sil"
+            last = i*10
             status = 1
     elif status == 1:
         if not(prob_speech[i] > prob_sil[i] and prob_speech[i] > prob_noise[i]):
-            print last, i*10 + 25, "speech"
-            last = i*10 + 25
+            print last, i*10, "speech"
+            last = i*10
             status = 0
     pass
+if status == 0:
+	print last, n*10, "sil"
+else:
+	print last, n*10, "speech"

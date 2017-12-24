@@ -102,18 +102,25 @@ def enframe(waveData, frameSize, stepLen):
 	zeros = np.zeros((pad_length-wlen,))
 	pad_signal = np.concatenate((waveData, zeros))
 
-	indices = np.tile(np.arange(0,frameSize),(frameNum,1)) + np.tile(np.arange(0, frameNum*stepLen, stepLen), (frameSize, 1)).T
+	indices = np.tile(np.arange(0,frameSize),(frameNum,1)) \
+			+ np.tile(np.arange(0, frameNum*stepLen, stepLen),
+			 (frameSize, 1)).T
 	indices = np.array(indices, dtype = np.int32)
 	frames = pad_signal[indices]
+	# To avoid DC bias, we perform mean subtractions on each frame
+#	for i in range(frameNum):
+#		frames[i] = frames[i] - np.median(frames[i])
 	return frames
 
 def main():
 	waveData = read_wave_data(wav1)
 	waveData = waveData[0]*1.0
 	waveData = waveData / max(abs(waveData))
+#	wavefft = np.fft.rfft(waveData)
 	# calculate the short-time-energy
 	frame = enframe(waveData, frameSize, frameSize)
 	energy = sum(frame.T*frame.T)
+#	volume = 10 * np.log(energy)
 	# calculate the zero-cross-rate
 	tmp1 = enframe(waveData[0:len(waveData)-1], frameSize, frameSize)
 	tmp2 = enframe(waveData[1:len(waveData)], frameSize, frameSize)
@@ -150,11 +157,13 @@ def main():
 	plt.ylabel("Raw wave")
 	plt.subplot(312)
 	plt.plot(energy[0:showLen // frameSize], c = "b")
-	plt.plot([0,showLen // frameSize-1], [ste_threshold, ste_threshold], c = 'r')
+	plt.plot([0,showLen // frameSize-1], [ste_threshold, ste_threshold],
+		c = 'r')
 	plt.ylabel("Short Time Energy")
 	plt.subplot(313)
 	plt.plot(zcr[0:showLen // frameSize], c = "g")
-	plt.plot([0,showLen // frameSize-1], [zcr_threshold, zcr_threshold], c = 'r')
+	plt.plot([0,showLen // frameSize-1], [zcr_threshold, zcr_threshold], 
+		c = 'r')
 	plt.ylabel("Zero Cross Rate")
 	plt.plot()
 	plt.show()
@@ -162,4 +171,5 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
 ```

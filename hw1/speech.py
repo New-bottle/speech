@@ -30,7 +30,8 @@ def enframe(waveData, frameSize, stepLen):
 	zeros = np.zeros((pad_length-wlen,))
 	pad_signal = np.concatenate((waveData, zeros))
 
-	indices = np.tile(np.arange(0,frameSize),(frameNum,1)) + np.tile(np.arange(0, frameNum*stepLen, stepLen), (frameSize, 1)).T
+	indices = np.tile(np.arange(0,frameSize),(frameNum,1)) \
+			+ np.tile(np.arange(0, frameNum*stepLen, stepLen), (frameSize, 1)).T
 	indices = np.array(indices, dtype = np.int32)
 	frames = pad_signal[indices]
 	# To avoid DC bias, we perform mean subtractions on each frame

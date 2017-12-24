@@ -95,7 +95,8 @@ class GaussianMixture():
     ans = np.zeros(x.shape[0])
     for j in range(x.shape[0]):
         for i in range(128):
-            ans[j] = ans[j] + self.__weights[i] * gaussian(x[j], self.__means[i], self.__variances[i])
+            ans[j] = ans[j] + self.__weights[i] * \
+            gaussian(x[j], self.__means[i], self.__variances[i])
     return ans
 ```
 ## 四 结果分析
@@ -179,12 +180,14 @@ class GaussianMixture():
         self.__variances = np.array(__variances)
         self.__weights = np.array(__weights)
     def __str__(self):
-        return "means = %s\nvariances = %s\nweights = %s" % (self.__means,self.__variances, self.__weights)
+        return "means = %s\nvariances = %s\nweights = %s" % \
+        (self.__means,self.__variances, self.__weights)
     def predict(self, x):
         ans = np.zeros(x.shape[0])
         for j in range(x.shape[0]):
             for i in range(128):
-                ans[j] = ans[j] + self.__weights[i] * gaussian(x[j], self.__means[i], self.__variances[i])
+                ans[j] = ans[j] + self.__weights[i] * \
+                gaussian(x[j], self.__means[i], self.__variances[i])
             if j % (x.shape[0] / 10) == 0:
                 print >>sys.stderr, "%s %%" % (j / (x.shape[0] / 10)*10)
 
